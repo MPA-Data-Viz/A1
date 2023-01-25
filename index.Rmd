@@ -1,0 +1,61 @@
+---
+title: "Assignment 1"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r}
+link <- "https://github.com/MPA-Data-Viz/A1/raw/main/Burke.csv"
+
+library(rio)
+library(lubridate)
+library(tidyverse)
+
+burke<-import(link)
+```
+
+
+```{r}
+burke$Date<-mdy(burke$Date)
+
+burke <- burke %>% replace(is.na(.), 0)
+
+burke<-burke%>%mutate(month = month(Date),
+                      year = year(Date),
+                      ped_total = `Ped South` + `Ped North`,
+                      bike_total = `Bike North` + `Bike South`)
+
+burke<-burke%>%mutate(month = case_when(month == 1 ~ "Jan",
+                                        month == 2 ~ "Feb",
+                                        month == 3 ~ "Mar",
+                                        month == 4 ~ "Apr",
+                                        month == 5 ~ "May",
+                                        month == 6 ~ "Jun",
+                                        month == 7 ~ "Jul",
+                                        month == 8 ~ "Aug",
+                                        month == 9 ~ "Sep",
+                                        month == 10 ~ "Oct",
+                                        month == 11 ~ "Nov",
+                                        month == 12 ~ "Dec"))
+
+burke_sum<-burke%>%group_by(month)%>%
+  summarise(total = sum(`BGT North of NE 70th Total`, na.rm = TRUE))
+
+burke_sum<-burke_sum%>%mutate(percent = round(total / sum(total),2))
+
+burke_sum$month<-factor(burke_sum$month, levels = c('Jan', 'Feb', 'Mar','Apr', 'May', 'Jun',
+                                                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'))
+
+```
+
+```{r}
+ggplot(burke_sum)+
+  geom_bar(aes(month,percent), stat = 'identity')+
+  labs(title = "The Burke Gilman Trail is Most Used in May",
+       subtitle = "Data collected at NE 70th St; 2014-2022",
+       x = NULL,
+       y = "Percent of Total")+ 
+  theme_minimal()
+```
+
