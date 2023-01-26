@@ -6,27 +6,37 @@ output:
 ---
 
 ```{r}
-link <- "https://github.com/MPA-Data-Viz/A1/raw/main/Burke.csv"
-
 library(rio)
 library(lubridate)
 library(tidyverse)
 
+link <- "https://github.com/MPA-Data-Viz/A1/raw/main/Burke.csv"
+
 burke<-import(link)
 ```
-
 
 ```{r}
 burke$Date<-mdy(burke$Date)
 
 burke <- burke %>% replace(is.na(.), 0)
+```
 
-burke<-burke%>%mutate(month = month(Date),
+```{r}
+burke_sum<-burke%>%group_by(Date)%>%
+  summarise(Total = sum(`BGT North of NE 70th Total`),
+            Ped_south = sum(`Ped South`),
+            Ped_north = sum(`Ped North`),
+            Bike_south = sum(`Bike South`),
+            Bike_north = sum(`Bike North`))
+
+burke_sum<-burke_sum%>%mutate(month = month(Date),
                       year = year(Date),
-                      ped_total = `Ped South` + `Ped North`,
-                      bike_total = `Bike North` + `Bike South`)
+                      ped_total = Ped_south + Ped_north,
+                      bike_total = Bike_south + Bike_north)
 
-burke<-burke%>%mutate(month = case_when(month == 1 ~ "Jan",
+burke_sum<-burke_sum%>%filter(year <=2017)
+
+burke_sum<-burke_sum%>%mutate(month = case_when(month == 1 ~ "Jan",
                                         month == 2 ~ "Feb",
                                         month == 3 ~ "Mar",
                                         month == 4 ~ "Apr",
@@ -39,23 +49,27 @@ burke<-burke%>%mutate(month = case_when(month == 1 ~ "Jan",
                                         month == 11 ~ "Nov",
                                         month == 12 ~ "Dec"))
 
-burke_sum<-burke%>%group_by(month)%>%
-  summarise(total = sum(`BGT North of NE 70th Total`, na.rm = TRUE))
 
-burke_sum<-burke_sum%>%mutate(percent = round(total / sum(total),2))
 
-burke_sum$month<-factor(burke_sum$month, levels = c('Jan', 'Feb', 'Mar','Apr', 'May', 'Jun',
+burke_table<-burke_sum%>%group_by(month)%>%
+  summarise(total = sum(Total, na.rm = TRUE))
+
+
+burke_table<-burke_table%>%mutate(percent = round(total / sum(total),2))
+
+burke_table$month<-factor(burke_table$month, levels = c('Jan', 'Feb', 'Mar','Apr', 'May', 'Jun',
                                                     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'))
 
 ```
 
 ```{r}
-ggplot(burke_sum)+
+ggplot(burke_table)+
   geom_bar(aes(month,percent), stat = 'identity')+
-  labs(title = "The Burke Gilman Trail is Most Used in May",
-       subtitle = "Data collected at NE 70th St; 2014-2022",
+  labs(title = "Usage of the Burke Gilman Trail Peaks in July",
+       subtitle = "Data collected at NE 70th St; 2014-2017",
        x = NULL,
-       y = "Percent of Total")+ 
+       y = "Percent of Total",
+       caption = "Data from data.seattle.gov")+ 
   theme_minimal()
 ```
 
