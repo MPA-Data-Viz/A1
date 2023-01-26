@@ -65,7 +65,7 @@ burke_table$month<-factor(burke_table$month, levels = c('Jan', 'Feb', 'Mar','Apr
 ```{r, echo = FALSE, warning=FALSE,message=FALSE}
 ggplot(burke_table)+
   geom_bar(aes(month,percent), stat = 'identity')+
-  labs(title = "Usage of the Burke Gilman Trail Peaks in July",
+  labs(title = "Use of the Burke Gilman Trail Peaks in July",
        subtitle = "Data collected at NE 70th St; 2014-2017",
        x = NULL,
        y = "Percent of Total",
