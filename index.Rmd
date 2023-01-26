@@ -5,7 +5,7 @@ output:
     df_print: paged
 ---
 
-```{r}
+```{r, include = FALSE}
 library(rio)
 library(lubridate)
 library(tidyverse)
@@ -15,13 +15,13 @@ link <- "https://github.com/MPA-Data-Viz/A1/raw/main/Burke.csv"
 burke<-import(link)
 ```
 
-```{r}
+```{r, include = FALSE}
 burke$Date<-mdy(burke$Date)
 
 burke <- burke %>% replace(is.na(.), 0)
 ```
 
-```{r}
+```{r, include=FALSE}
 burke_sum<-burke%>%group_by(Date)%>%
   summarise(Total = sum(`BGT North of NE 70th Total`),
             Ped_south = sum(`Ped South`),
@@ -62,7 +62,7 @@ burke_table$month<-factor(burke_table$month, levels = c('Jan', 'Feb', 'Mar','Apr
 
 ```
 
-```{r}
+```{r, echo = FALSE, warning=FALSE,message=FALSE}
 ggplot(burke_table)+
   geom_bar(aes(month,percent), stat = 'identity')+
   labs(title = "Usage of the Burke Gilman Trail Peaks in July",
