@@ -21,6 +21,8 @@ burke$Date<-mdy(burke$Date)
 burke <- burke %>% replace(is.na(.), 0)
 ```
 
+
+
 ```{r, include=FALSE}
 burke_sum<-burke%>%group_by(Date)%>%
   summarise(Total = sum(`BGT North of NE 70th Total`),
@@ -50,8 +52,14 @@ burke_sum<-burke_sum%>%mutate(month = case_when(month == 1 ~ "Jan",
                                         month == 12 ~ "Dec"))
 
 
+statVal<-summary(burke_sum$Total, digits = 3)
+statVal<-statVal%>%as.vector()
+upper<-((statVal[5]-statVal[2])*1.5)+statVal[5]
 
-burke_table<-burke_sum%>%group_by(month)%>%
+burke_sum_filt<-burke_sum%>%filter(Total <= upper)
+
+
+burke_table<-burke_sum_filt%>%group_by(month)%>%
   summarise(total = sum(Total, na.rm = TRUE))
 
 
@@ -60,16 +68,71 @@ burke_table<-burke_table%>%mutate(percent = round(total / sum(total),2))
 burke_table$month<-factor(burke_table$month, levels = c('Jan', 'Feb', 'Mar','Apr', 'May', 'Jun',
                                                     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'))
 
+
+summer<-burke_table%>%filter(month %in% c('May', 'Jun', 'Jul', 'Aug','Sep'))
+summer_total<-sum(summer$percent)*100
+max_label<-max(burke_table$percent)*100
+
 ```
+
+
+The Burke Gilman Trail in Seattle starts at Golden Gardens in the west, follows the ship canal to Lake Washington, and winds along the lake until it ends in Bothell. The City of Seattle has been collecting data on the use of the trail since 2014. The below graphs show when and how the trail is primarily used.
+<br>
+<br>
 
 ```{r, echo = FALSE, warning=FALSE,message=FALSE}
 ggplot(burke_table)+
-  geom_bar(aes(month,percent), stat = 'identity')+
+  geom_bar(aes(month,percent), stat = 'identity', fill = "lightgreen")+
   labs(title = "Use of the Burke Gilman Trail Peaks in July",
-       subtitle = "Data collected at NE 70th St; 2014-2017",
+       subtitle =paste0(summer_total,"% of Yearly Use Occurs May-Sep") ,
        x = NULL,
-       y = "Percent of Total",
-       caption = "Data from data.seattle.gov")+ 
+       y = NULL,
+       caption = "Data collected at NE 70th St; 2014-2017 
+Data from data.seattle.gov")+ 
+  scale_y_continuous(labels = scales::label_percent(accuracy = 1))+
+  #geom_text(aes(month,percent,label = if_else(burke_table$month == "Jul", paste0(max_label,"%"), "")),
+          #  position = position_dodge(width = .9), vjust = 0)+
   theme_minimal()
 ```
+
+
+
+<br>
+<br>
+<br>
+<br>
+
+
+
+```{r, include = FALSE}
+ped_avg<-round(mean(burke_sum_filt$ped_total),0)
+bike_avg<-round(mean(burke_sum_filt$bike_total),0)
+
+```
+
+
+
+```{r, echo = FALSE, warning = FALSE, message=FALSE}
+ggplot(burke_sum_filt)+
+  geom_point(aes(ped_total,bike_total))+
+  labs(title = "The Burke Gilman Trail sees more Bikes than Pedestrians per Day",
+       subtitle = "1 Dot = 1 Day", 
+       caption = "Data collected at NE 70th St; 2014-2017 
+Data from data.seattle.gov",
+        x = 'Total Pedestrians',
+        y = 'Total Bikes')+
+  theme_minimal()+
+  geom_vline(xintercept = ped_avg, linetype= "dashed", color = "red")+
+  geom_hline(yintercept = bike_avg, linetype = "dashed", color = "red")+
+  annotate(geom = 'label', label = paste0("Average bikes per day: ",bike_avg,"
+","Average pedestrians per day: ",ped_avg), 
+            x = 2500, y = 3000, size = 4, hjust = .5, color = "red")
+  
+
+
+```
+
+
+
+
 
