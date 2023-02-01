@@ -1,5 +1,5 @@
 ---
-title: "Assignment 1"
+title: "Assignment 1 and 2"
 output:
   html_document:
     df_print: paged
@@ -132,35 +132,45 @@ Data from data.seattle.gov",
 
 ```
 
+<br>
+<br>
+<br>
+<br>
+<br>
 
+```{r, include = FALSE}
 
-<!-- ```{r, include = FALSE} -->
-<!-- burke_pivot<-burke_sum_filt%>%pivot_longer(cols = c(Ped_south, Ped_north, Bike_south,Bike_north), -->
-<!--                                                       names_to = 'Direction', -->
-<!--                                                       values_to = 'Value') -->
+burke_sumDi<-burke_sum_filt%>%group_by(month)%>%
+  summarise(Bike_south = mean(Bike_south),
+            Bike_north = mean(Bike_north),
+            Ped_south = mean(Ped_south),
+            Ped_north = mean(Ped_north))
 
-<!-- burke_pivot<-burke_pivot%>%mutate(start = if_else(grepl("south", Direction,), "south", "north")) -->
-<!-- burke_pivot<-burke_pivot%>%mutate(end = if_else(grepl("south", Direction,), "north", "south")) -->
-<!-- burke_pivot<-burke_pivot%>%mutate(type = if_else(grepl("Bike", Direction,), "Bike", "Ped")) -->
+burke_sumDi$month<-factor(burke_sumDi$month, levels = c('Jan', 'Feb', 'Mar','Apr', 'May', 'Jun',
+                                                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'))
 
-<!-- burke_direction<-burke_pivot%>%group_by(month,Direction)%>% -->
-<!--   summarise(avg = mean(Value)) -->
+burke_pivot<-burke_sumDi%>%pivot_longer(cols = c(Ped_south, Ped_north, Bike_south,Bike_north),
+                                                      names_to = 'type',
+                                                      values_to = 'Value')
 
-<!-- burke_direction<-burke_direction%>%mutate(start = if_else(grepl("south", Direction,), "south", "north")) -->
-<!-- burke_direction<-burke_direction%>%mutate(end = if_else(grepl("south", Direction,), "north", "south")) -->
-<!-- burke_direction<-burke_direction%>%mutate(type = if_else(grepl("Bike", Direction,), "Bike", "Ped")) -->
-<!-- burke_direction<-burke_direction%>%mutate(startX = if_else(start == "south", 47.679103,47.679677)) -->
-<!-- burke_direction<-burke_direction%>%mutate(endX = if_else(start == "north", 47.679103,47.679677)) -->
-<!-- burke_direction<-burke_direction%>%mutate(startY = if_else(start == "south", -122.265416,-122.265228)) -->
-<!-- burke_direction<-burke_direction%>%mutate(endY = if_else(start == "north", -122.265416,-122.265228)) -->
+burke_pivot<-burke_pivot%>%mutate(mode = if_else(grepl("Bike", type,), "Bike", "Pedestrian"))
+burke_pivot<-burke_pivot%>%mutate(Direction = if_else(grepl("south", type,), "Southbound", "Northbound"))
 
+```
 
-
-
-<!-- sankeyNetwork(Links = burke_direction, Source = 'start', Target = 'end',  -->
-<!--               Value = 'avg') -->
-
-
-<!-- ``` -->
-
+```{r,echo = FALSE, warning = FALSE, message=FALSE}
+ggplot(data = burke_pivot)+
+  geom_point(aes(x = month, y = Value, color = Direction), shape = 5)+
+  geom_segment(aes(x = month, y = 0, 
+                   yend = Value,
+                   xend = month), color = 'gray', size = .2)+
+  labs(title = "Pedestrian Use of the Trail is Less Variable Across the Year Than Bike Usage",
+       x = "Month",
+       y = "Average Count",
+       caption = "Data collected at NE 70th St; 2014-2017 
+Data from data.seattle.gov")+
+  facet_grid(~mode) + coord_flip()+
+  scale_x_discrete(limits = rev(levels(burke_pivot$month)))+
+  theme_minimal()
+```
 
