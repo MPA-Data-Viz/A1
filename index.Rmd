@@ -36,7 +36,7 @@ burke_sum<-burke_sum%>%mutate(month = month(Date),
                       ped_total = Ped_south + Ped_north,
                       bike_total = Bike_south + Bike_north)
 
-burke_sum<-burke_sum%>%filter(year <=2017)
+burke_sum<-burke_sum%>%filter(year %in% c(2014,2015,2016,2017))
 
 burke_sum<-burke_sum%>%mutate(month = case_when(month == 1 ~ "Jan",
                                         month == 2 ~ "Feb",
@@ -69,14 +69,14 @@ burke_table$month<-factor(burke_table$month, levels = c('Jan', 'Feb', 'Mar','Apr
                                                     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'))
 
 
-summer<-burke_table%>%filter(month %in% c('May', 'Jun', 'Jul', 'Aug','Sep'))
+summer<-burke_table%>%filter(month %in% c('May', 'Jun', 'Jul', 'Aug'))
 summer_total<-sum(summer$percent)*100
 max_label<-max(burke_table$percent)*100
 
 ```
 
 
-The Burke Gilman Trail in Seattle starts at Golden Gardens in the west, follows the ship canal to Lake Washington, and winds along the lake until it ends in Bothell. The City of Seattle has been collecting data on the use of the trail since 2014. The below graphs show when and how the trail is primarily used.
+The Burke Gilman Trail in Seattle starts at Golden Gardens in the west, follows the ship canal to Lake Washington, and winds north along the lake until it ends in Bothell. The City of Seattle has been collecting data on the use of the trail since 2014. The below graphs show when and how the trail is primarily used.
 <br>
 <br>
 
@@ -84,7 +84,7 @@ The Burke Gilman Trail in Seattle starts at Golden Gardens in the west, follows 
 ggplot(burke_table)+
   geom_bar(aes(month,percent), stat = 'identity', fill = "lightgreen")+
   labs(title = "Use of the Burke Gilman Trail Peaks in July",
-       subtitle =paste0(summer_total,"% of Yearly Use Occurs May-Sep") ,
+       subtitle =paste0(summer_total,"% of Yearly Use Occurs May-Aug") ,
        x = NULL,
        y = NULL,
        caption = "Data collected at NE 70th St; 2014-2017 
@@ -134,5 +134,33 @@ Data from data.seattle.gov",
 
 
 
+<!-- ```{r, include = FALSE} -->
+<!-- burke_pivot<-burke_sum_filt%>%pivot_longer(cols = c(Ped_south, Ped_north, Bike_south,Bike_north), -->
+<!--                                                       names_to = 'Direction', -->
+<!--                                                       values_to = 'Value') -->
+
+<!-- burke_pivot<-burke_pivot%>%mutate(start = if_else(grepl("south", Direction,), "south", "north")) -->
+<!-- burke_pivot<-burke_pivot%>%mutate(end = if_else(grepl("south", Direction,), "north", "south")) -->
+<!-- burke_pivot<-burke_pivot%>%mutate(type = if_else(grepl("Bike", Direction,), "Bike", "Ped")) -->
+
+<!-- burke_direction<-burke_pivot%>%group_by(month,Direction)%>% -->
+<!--   summarise(avg = mean(Value)) -->
+
+<!-- burke_direction<-burke_direction%>%mutate(start = if_else(grepl("south", Direction,), "south", "north")) -->
+<!-- burke_direction<-burke_direction%>%mutate(end = if_else(grepl("south", Direction,), "north", "south")) -->
+<!-- burke_direction<-burke_direction%>%mutate(type = if_else(grepl("Bike", Direction,), "Bike", "Ped")) -->
+<!-- burke_direction<-burke_direction%>%mutate(startX = if_else(start == "south", 47.679103,47.679677)) -->
+<!-- burke_direction<-burke_direction%>%mutate(endX = if_else(start == "north", 47.679103,47.679677)) -->
+<!-- burke_direction<-burke_direction%>%mutate(startY = if_else(start == "south", -122.265416,-122.265228)) -->
+<!-- burke_direction<-burke_direction%>%mutate(endY = if_else(start == "north", -122.265416,-122.265228)) -->
+
+
+
+
+<!-- sankeyNetwork(Links = burke_direction, Source = 'start', Target = 'end',  -->
+<!--               Value = 'avg') -->
+
+
+<!-- ``` -->
 
 
