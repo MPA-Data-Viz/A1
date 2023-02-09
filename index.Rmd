@@ -9,21 +9,45 @@ output:
 library(rio)
 library(lubridate)
 library(tidyverse)
+library(leaflet)
+library(sf)
 
 
 
-  
-link <- "https://github.com/MPA-Data-Viz/A1/raw/main/Burke.csv"
+csv_link <- "https://github.com/MPA-Data-Viz/A1/raw/main/Burke.csv"
 
-burke<-import(link)
+burke<-import(csv_link)
+
 ```
+
+
+
+```{r, include = FALSE}
+
+line_link<-"https://github.com/MPA-Data-Viz/A1/raw/main/BG_json.geojson"
+trail<-read_sf(line_link)
+  
+trail <- st_transform(trail, 4326)
+
+```
+
+The Burke Gilman Trail in Seattle (as seen in the map below) starts at Golden Gardens in the west, follows the ship canal to Lake Washington, and winds north along the lake until it ends in Bothell. 
+<br>
+<br>
+
+```{r, echo = FALSE, warning=FALSE,message=FALSE}
+leaflet(trail) %>%
+  addPolylines(color = "blue", opacity = 1)%>%
+  addTiles()
+```
+<br>
+<br>
 
 ```{r, include = FALSE}
 burke$Date<-mdy(burke$Date)
 
 burke <- burke %>% replace(is.na(.), 0)
 ```
-
 
 
 ```{r, include=FALSE}
@@ -78,8 +102,8 @@ max_label<-max(burke_table$percent)*100
 
 ```
 
-
-The Burke Gilman Trail in Seattle starts at Golden Gardens in the west, follows the ship canal to Lake Washington, and winds north along the lake until it ends in Bothell. The City of Seattle has been collecting data on the use of the trail since 2014. The below graphs show when and how the trail is primarily used.
+The City of Seattle has been collecting data on the use of the trail since 2014. The below graphs show when and how the trail is primarily used.
+<br>
 <br>
 <br>
 
@@ -178,7 +202,7 @@ Data from data.seattle.gov")+
 ```
 
 
-```{r}
+```{r, include=FALSE}
 burke_pivot<-burke_pivot%>%mutate(pyr_Value = if_else(Direction == "Southbound", -Value, Value))
 
 pop_range <- range(burke_pivot$pyr_Value)
@@ -187,9 +211,13 @@ pop_range_breaks <- pretty(pop_range, n = 4)
 
 ```
 
+<br>
+<br>
+<br>
+<br>
+<br>
 
-
-```{r}
+```{r, echo = FALSE, warning = FALSE, message=FALSE}
 ggplot(data = burke_pivot)+
   geom_point(aes(x = month, y = pyr_Value, color = Direction), shape = 5, size = 2)+
   geom_segment(aes(x = month, y = 0, 
