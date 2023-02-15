@@ -1,9 +1,12 @@
 ---
-title: "Assignment 1 and 2"
+title: "Pubpol 543"
 output:
   html_document:
     df_print: paged
 ---
+(Assignment number in plot caption)
+<br>
+<br>
 
 ```{r, include = FALSE}
 library(rio)
@@ -115,7 +118,8 @@ ggplot(burke_table)+
        x = NULL,
        y = NULL,
        caption = "Data collected at NE 70th St; 2014-2017 
-Data from data.seattle.gov")+ 
+Data from data.seattle.gov,
+Assignment 1")+ 
   scale_y_continuous(labels = scales::label_percent(accuracy = 1))+
   #geom_text(aes(month,percent,label = if_else(burke_table$month == "Jul", paste0(max_label,"%"), "")),
           #  position = position_dodge(width = .9), vjust = 0)+
@@ -145,7 +149,8 @@ ggplot(burke_sum_filt)+
   labs(title = "The Burke Gilman Trail sees more Bikes than Pedestrians per Day",
        subtitle = "1 Dot = 1 Day", 
        caption = "Data collected at NE 70th St; 2014-2017 
-Data from data.seattle.gov",
+Data from data.seattle.gov,
+Assignmnet 2",
         x = 'Total Pedestrians',
         y = 'Total Bikes')+
   theme_minimal()+
@@ -186,19 +191,20 @@ burke_pivot<-burke_pivot%>%mutate(Direction = if_else(grepl("south", type,), "So
 ```
 
 ```{r,echo = FALSE, warning = FALSE, message=FALSE}
-ggplot(data = burke_pivot)+
-  geom_point(aes(x = month, y = Value, color = Direction), shape = 5)+
-  geom_segment(aes(x = month, y = 0, 
-                   yend = Value,
-                   xend = month), color = 'gray', size = .2)+
-  labs(title = "Pedestrian Use of the Trail is Less Variable Across the Year Than Bike Usage",
-       x = "Month",
-       y = "Average Count",
-       caption = "Data collected at NE 70th St; 2014-2017 
-Data from data.seattle.gov")+
-  facet_grid(~mode) + coord_flip()+
-  scale_x_discrete(limits = rev(levels(burke_pivot$month)))+
-  theme_minimal()
+# ggplot(data = burke_pivot)+
+#   geom_point(aes(x = month, y = Value, color = Direction), shape = 5)+
+#   geom_segment(aes(x = month, y = 0, 
+#                    yend = Value,
+#                    xend = month), color = 'gray', size = .2)+
+#   labs(title = "Pedestrian Use of the Trail is Less Variable Across the Year Than Bike Usage",
+#        x = "Month",
+#        y = "Average Count",
+#        caption = "Data collected at NE 70th St; 2014-2017 
+# Data from data.seattle.gov,
+# Assignment 3")+
+#   facet_grid(~mode) + coord_flip()+
+#   scale_x_discrete(limits = rev(levels(burke_pivot$month)))+
+#   theme_minimal()
 ```
 
 
@@ -211,11 +217,6 @@ pop_range_breaks <- pretty(pop_range, n = 4)
 
 ```
 
-<br>
-<br>
-<br>
-<br>
-<br>
 
 ```{r, echo = FALSE, warning = FALSE, message=FALSE}
 ggplot(data = burke_pivot)+
@@ -223,13 +224,13 @@ ggplot(data = burke_pivot)+
   geom_segment(aes(x = month, y = 0, 
                    yend = pyr_Value,
                    xend = month, 
-                   size = Value, 
                    color = Direction))+
   labs(title = "Pedestrian Use of the Trail is Less Variable Across the Year Than Bike Usage",
        x = "Month",
        y = "Average Count",
        caption = "Data collected at NE 70th St; 2014-2017 
-Data from data.seattle.gov")+
+Data from data.seattle.gov,
+Assignment 3")+
   facet_grid(~mode) +
   scale_y_continuous(breaks  = pop_range_breaks,
                        labels = abs(pop_range_breaks))+ 
